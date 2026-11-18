@@ -57,28 +57,6 @@ class _VoiceCommandRule {
   });
 }
 
-// Helper model representing a normalized candidate phrase with pre-calculated length for sorting.
-class _PhraseCandidate {
-  // Original human-readable phrase string.
-  final String raw;
-
-  // Normalized lowercased / Arabic-unified phrase string for substring comparison.
-  final String normalized;
-
-  // Character length of the normalized string used for descending sort priority.
-  final int length;
-
-  // Constructor initializing candidate phrase fields.
-  const _PhraseCandidate({
-    // Sets raw phrase.
-    required this.raw,
-    // Sets normalized phrase.
-    required this.normalized,
-    // Sets character length.
-    required this.length,
-  });
-}
-
 // CommandParser maps spoken English and Egyptian Arabic voice inputs to Arduino Serial tokens.
 class CommandParser {
   // Comprehensive list of smart home voice command rules structured by priority:
@@ -578,32 +556,26 @@ class CommandParser {
     // Iterates through all defined voice command rules in priority sequence:
     // Section C (Master Controls) -> Section B (RGB LED) -> Section A (Relay Appliances).
     for (final rule in _rules) {
-      // Collects all English and Arabic phrases for this rule.
-      final candidates = <_PhraseCandidate>[];
-
-      // Gathers normalized English trigger phrases with calculated lengths.
+      // 1. Checks matching against English command trigger phrases.
       for (final englishPhrase in rule.englishPhrases) {
-        final norm = englishPhrase.toLowerCase().trim();
-        candidates.add(_PhraseCandidate(raw: englishPhrase, normalized: norm, length: norm.length));
-      }
-
-      // Gathers normalized Egyptian Arabic trigger phrases with calculated lengths.
-      for (final arabicPhrase in rule.arabicPhrases) {
-        final norm = normalizeArabic(arabicPhrase);
-        candidates.add(_PhraseCandidate(raw: arabicPhrase, normalized: norm, length: norm.length));
-      }
-
-      // Sorts candidate phrases by length descending so longer, more specific phrases match before shorter substrings.
-      candidates.sort((a, b) => b.length.compareTo(a.length));
-
-      // Evaluates candidate phrases against the sanitized input transcript.
-      for (final candidate in candidates) {
-        // Tests if user utterance contains the exact candidate phrase.
-        if (sanitizedInput.contains(candidate.normalized)) {
-          // Returns matched command result immediately with token and metadata.
+        final target = englishPhrase.toLowerCase().trim();
+        if (sanitizedInput.contains(target)) {
           return CommandResult(
             token: rule.token,
-            matchedPhrase: candidate.raw,
+            matchedPhrase: englishPhrase,
+            description: rule.description,
+            category: rule.category,
+          );
+        }
+      }
+
+      // 2. Checks matching against Egyptian Arabic command trigger phrases.
+      for (final arabicPhrase in rule.arabicPhrases) {
+        final target = normalizeArabic(arabicPhrase);
+        if (sanitizedInput.contains(target)) {
+          return CommandResult(
+            token: rule.token,
+            matchedPhrase: arabicPhrase,
             description: rule.description,
             category: rule.category,
           );

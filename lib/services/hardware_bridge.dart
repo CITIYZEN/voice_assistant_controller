@@ -324,6 +324,9 @@ class HardwareBridge extends ChangeNotifier {
 
   // Dispatches command to physical hardware module via Wi-Fi HTTP or Bluetooth SPP.
   Future<void> _executeHardware(String token) async {
+    // Optimistically mirrors state on virtual dashboard immediately so UI switches update instantaneously.
+    _mirrorStateLocally(token);
+
     // True UART newline byte payload for physical microcontroller serial streams.
     final rawHardwarePayload = '$token\n';
 
@@ -333,12 +336,12 @@ class HardwareBridge extends ChangeNotifier {
       final url = Uri.parse('http://$_esp32IpAddress:$_esp32Port/command');
 
       try {
-        // Sends HTTP POST request with command payload.
+        // Sends HTTP POST request with command payload with responsive 800ms timeout.
         final response = await http.post(
           url,
           headers: {'Content-Type': 'application/x-www-form-urlencoded'},
           body: {'cmd': token},
-        ).timeout(const Duration(milliseconds: 2500));
+        ).timeout(const Duration(milliseconds: 800));
 
         // Triggers RX LED pulse upon receiving response.
         _triggerRxPulse();
@@ -347,8 +350,6 @@ class HardwareBridge extends ChangeNotifier {
         if (response.statusCode == 200) {
           // Logs hardware response body to serial monitor.
           _addLog('RX', '[RX <- ESP32]: "${response.body.trim()}"');
-          // Optimistically mirrors state on virtual dashboard as well.
-          _mirrorStateLocally(token);
         } else {
           // Logs non-200 HTTP status response.
           _addLog('RX', '[RX <- ESP32]: "HTTP Error ${response.statusCode}"');
@@ -361,8 +362,6 @@ class HardwareBridge extends ChangeNotifier {
       // Bluetooth Classic HC-05 SPP branch (Pre-wired for Phase 2 integration).
       // Transmits rawHardwarePayload containing real newline byte '\n' to the UART stream.
       _addLog('SYS', '[Bluetooth Bridge]: Transmitting "$token\\n" (${rawHardwarePayload.codeUnits.length} bytes) via HC-05 SPP...');
-      // Mirrors state locally for seamless developer preview.
-      _mirrorStateLocally(token);
     }
   }
 

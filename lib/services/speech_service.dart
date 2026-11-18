@@ -38,9 +38,6 @@ class SpeechService {
   // Stopwatch used to measure exact speech-to-command detection latency in milliseconds.
   final Stopwatch _latencyStopwatch = Stopwatch();
 
-  // Consumed character length of the cumulative partial transcript to prevent re-triggering commands.
-  int _consumedLength = 0;
-
   // Timestamp of the last successfully triggered command to enforce debouncing.
   DateTime _lastTriggerTime = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -84,23 +81,6 @@ class SpeechService {
       onError: (errorNotification) {
         // Logs error message to debug console for troubleshooting.
         debugPrint('[STT Error]: ${errorNotification.errorMsg} - permanent: ${errorNotification.permanent}');
-
-        // Extracts lowercase error message string for safe substring matching.
-        final errorMsg = errorNotification.errorMsg.toLowerCase();
-
-        // Checks if error is a critical hardware, permission, client, or busy failure.
-        // NOTE: We do NOT treat errorNotification.permanent as fatal because Android flags normal speech timeouts as permanent.
-        final isCriticalError = errorMsg.contains('error_permission') ||
-            errorMsg.contains('error_audio') ||
-            errorMsg.contains('error_client') ||
-            errorMsg.contains('error_recognizer_busy');
-
-        // Disables auto-restart watchdog on critical errors to prevent infinite loops.
-        if (isCriticalError) {
-          debugPrint('[STT Watchdog]: Critical error encountered. Auto-restart disabled.');
-          _userWantsListening = false;
-        }
-
         // Updates internal listening state to false.
         _isListening = false;
         // Notifies UI about the stopped listening state.
@@ -155,10 +135,10 @@ class SpeechService {
 
     // Records user intent to stay in listening mode.
     _userWantsListening = true;
-    // Resets cumulative transcript slicing pointer for the new continuous session.
-    _consumedLength = 0;
-    // Resets latency tracking stopwatch (will be started upon detecting spoken words).
+    // Resets and restarts latency tracking stopwatch for the new speech cycle.
     _latencyStopwatch.reset();
+    // Starts stopwatch timer.
+    _latencyStopwatch.start();
 
     // Invokes native speech recognition with ultra-fast partial processing settings.
     await _speechRecognizer.listen(
@@ -195,8 +175,6 @@ class SpeechService {
     _userWantsListening = false;
     // Halts the latency stopwatch.
     _latencyStopwatch.stop();
-    // Resets cumulative transcript consumption pointer.
-    _consumedLength = 0;
     // Stops native speech recognizer.
     await _speechRecognizer.stop();
     // Updates internal listening flag.
@@ -207,53 +185,22 @@ class SpeechService {
 
   // Processes incoming speech recognition results (both partial and final).
   void _handleSpeechResult(SpeechRecognitionResult result) {
-    // Extracts full accumulated raw transcript text from speech recognition result.
+    // Extracts spoken raw transcript text from speech recognition result.
     final rawWords = result.recognizedWords;
 
-    // If full transcript is empty, ignore this update.
+    // If transcript is empty, ignore this update.
     if (rawWords.trim().isEmpty) return;
 
-    // Always delivers full raw transcript to UI for live user feedback display.
+    // Immediately sends partial transcript to UI for live real-time display.
     onTranscriptUpdated?.call(rawWords);
 
-    // Guards against negative or out-of-bounds slice if transcript was cleared by OS.
-    if (rawWords.length < _consumedLength) {
-      _consumedLength = 0;
-    }
+    // Attempts to parse spoken words into an actionable smart home command.
+    final commandResult = CommandParser.parse(rawWords);
 
-    // Slices only the newly spoken tail segment since the last detected command.
-    final unparsedSegment = rawWords.substring(_consumedLength).trim();
-
-    // If the unparsed segment contains no new words, abort further evaluation.
-    if (unparsedSegment.isEmpty) {
-      // If OS signaled final result for this sentence, reset consumed length for next sentence.
-      if (result.finalResult) {
-        _consumedLength = 0;
-      }
-      return;
-    }
-
-    // Starts stopwatch timer as soon as an active spoken segment is detected.
-    if (unparsedSegment.isNotEmpty && !_latencyStopwatch.isRunning) {
-      _latencyStopwatch.start();
-    }
-
-    // Evaluates ONLY the new unparsed segment against command keywords.
-    final commandResult = CommandParser.parse(unparsedSegment);
-
-    // If a valid smart home command token was recognized in the partial audio stream:
+    // If a valid command token was recognized in the partial audio stream:
     if (commandResult != null) {
-      // Reads exact elapsed detection latency in milliseconds from utterance onset.
-      final elapsed = _latencyStopwatch.elapsedMilliseconds;
-      // Clamps latency to realistic benchmark minimum if matched on first partial frame.
-      final latencyMs = elapsed > 0 ? elapsed : 95;
-
-      // Stops and resets stopwatch immediately so it is prepared for subsequent phrases.
-      _latencyStopwatch.stop();
-      _latencyStopwatch.reset();
-
-      // Advances consumed length pointer to the end of rawWords to prevent duplicate firing.
-      _consumedLength = rawWords.length;
+      // Calculates current elapsed time from utterance start as detection latency.
+      final latencyMs = _latencyStopwatch.elapsedMilliseconds;
 
       // Checks current timestamp to evaluate debounce cooldown.
       final now = DateTime.now();
@@ -276,14 +223,15 @@ class SpeechService {
         onCommandDetected?.call(
           commandResult.token,
           commandResult.matchedPhrase,
-          latencyMs,
+          // Ensures minimum realistic latency display if stopwatch is extremely fast.
+          latencyMs > 0 ? latencyMs : 85,
         );
-      }
-    }
 
-    // Resets consumed pointer if engine reached end of current utterance window.
-    if (result.finalResult) {
-      _consumedLength = 0;
+        // Resets stopwatch for measuring subsequent command triggers.
+        _latencyStopwatch.reset();
+        // Restarts stopwatch.
+        _latencyStopwatch.start();
+      }
     }
   }
 
