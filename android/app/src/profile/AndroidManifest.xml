@@ -1,0 +1,6 @@
+<!-- Profile Android manifest granting internet access for performance profiling -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.citiyzen.voice_assistant_controller">
+    <!-- Grants internet access to communicate with Flutter profiling observatory -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>

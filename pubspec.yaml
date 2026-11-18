@@ -1,0 +1,49 @@
+# Defines the package name for this Flutter project.
+name: voice_assistant_controller
+# Provides a human-readable description of what this application does.
+description: "Ultra-fast zero-latency Smart Home Voice Assistant for Android with Arduino simulation."
+# Prevents accidental publication of this private repository package to pub.dev.
+publish_to: "none"
+# Sets the semantic version of the application (version name + build number).
+version: 1.0.0+1
+
+# Specifies the Dart SDK version constraints compatible with modern Flutter.
+environment:
+  # Requires Dart SDK version 3.0.0 or higher, but lower than 4.0.0.
+  sdk: ">=3.0.0 <4.0.0"
+  # Defines compatible Flutter SDK constraint.
+  flutter: ">=3.10.0"
+
+# Declares the external production packages and libraries needed by the application.
+dependencies:
+  # Incorporates the core Flutter framework dependencies.
+  flutter:
+    # Resolves Flutter package from the local Flutter SDK.
+    sdk: flutter
+
+  # High-speed native Speech-to-Text library supporting partial stream recognition and Arabic/English.
+  speech_to_text: ^6.6.1
+
+  # HTTP client library for sending REST API commands to ESP32 Wi-Fi hardware bridge.
+  http: ^1.2.1
+
+  # Standard iOS/Android Cupertino icons for clean interface iconography.
+  cupertino_icons: ^1.0.8
+
+  # Bluetooth Classic SPP library for Arduino HC-05 communication (Uncomment for Phase 2 hardware build).
+  # flutter_bluetooth_serial: ^0.4.0
+
+# Declares the development-only tools and dependencies.
+dev_dependencies:
+  # Provides the Flutter test framework for automated unit and widget testing.
+  flutter_test:
+    # Resolves test package from local Flutter SDK.
+    sdk: flutter
+
+  # Official Flutter linter rules to enforce clean code and optimal Dart formatting.
+  flutter_lints: ^3.0.0
+
+# Configuration section for Flutter-specific assets and fonts.
+flutter:
+  # Enables Material Design iconography and styling conventions.
+  uses-material-design: true

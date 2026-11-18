@@ -1,0 +1,71 @@
+<!-- Root manifest element declaring package namespace and Android XML schema -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.citiyzen.voice_assistant_controller">
+
+    <!-- Permission required to access hardware microphone for zero-latency speech recognition -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Permission required for HTTP communication with ESP32 Wi-Fi smart home microcontrollers -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Permission required for Bluetooth classic communication with Arduino HC-05 / HC-06 modules -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <!-- Permission required to discover and pair with new Bluetooth hardware peripherals -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <!-- Android 12+ (API 31+) permission required to communicate with already-paired Bluetooth devices -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Android 12+ (API 31+) permission required to discover nearby Bluetooth and BLE hardware devices -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+
+    <!-- Location permission required on Android 6 to 11 to scan for Bluetooth devices -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Queries block required for Android 11+ (API 30+) package visibility to discover Speech Recognizer services -->
+    <queries>
+        <!-- Declares intent to interact with the system or Google Speech Recognition service -->
+        <intent>
+            <!-- Standard Android speech recognition service action intent -->
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
+
+    <!-- Main application tag configuring UI themes, app labels, and process attributes -->
+    <application
+        android:label="HVASSI Voice Controller"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+
+        <!-- Declares the primary Android Activity launched when user opens the app -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- Directs the system to show a splash screen until Flutter paints its first frame -->
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+            <!-- Intent filter marking this Activity as the main launch entry point of the app -->
+            <intent-filter>
+                <!-- Sets this activity as the main action intent -->
+                <action android:name="android.intent.action.MAIN"/>
+                <!-- Places the app launcher icon on the Android home screen app drawer -->
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Required metadata tag to indicate modern Flutter v2 embedding usage -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+</manifest>

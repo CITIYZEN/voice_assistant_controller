@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- XML resources definition for Android activity themes -->
+<resources>
+    <!-- Theme applied to the Android window before Flutter renders its UI components -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <!-- Sets background color to dark aesthetic matching our assistant design -->
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+    <!-- Normal theme applied once Flutter has rendered the initial frame -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <!-- Sets standard dark window background -->
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>

@@ -1,0 +1,33 @@
+# Excludes compiled Dart tool cache files generated during pub get and analysis.
+.dart_tool/
+# Excludes the generated flutter plugins registry file.
+.flutter-plugins
+# Excludes the generated dependencies list for Flutter plugins.
+.flutter-plugins-dependencies
+# Excludes local package configuration mappings created by pub get.
+.packages
+# Excludes pub-cache files and temporary resolution files.
+.pub-cache/
+.pub/
+
+# Excludes the output directory where compiled APKs, bundles, and build artifacts live.
+build/
+
+# Excludes IDE and editor-specific directories and preferences.
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Excludes Android-specific local properties that point to a developer's specific SDK path.
+android/local.properties
+# Excludes Gradle user home caches if generated inside the project.
+android/.gradle/
+# Excludes compiled Gradle build artifacts in the android subfolder.
+android/app/build/
+android/build/
+
+# Excludes OS-generated temporary metadata files.
+.DS_Store
+Thumbs.db

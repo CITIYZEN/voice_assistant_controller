@@ -1,0 +1,19 @@
+# Includes the official Flutter recommended linting rule set.
+include: package:flutter_lints/flutter.yaml
+
+# Customizes analyzer settings for the Dart compiler and linter.
+analyzer:
+  # Instructs analyzer to ignore missing SDK warnings in decoupled simulation environments.
+  errors:
+    # Allows flexible type checking where appropriate.
+    todo: ignore
+
+# Customizes specific linter rules for clean and readable code structure.
+linter:
+  rules:
+    # Requires prefer_const_constructors where possible for maximum rendering performance.
+    prefer_const_constructors: true
+    # Enforces camelCase naming conventions for methods and variables.
+    non_constant_identifier_names: true
+    # Encourages meaningful variable names and clean control flow.
+    avoid_empty_else: true
