@@ -184,10 +184,11 @@ class _VoiceAssistantHomeScreenState extends State<VoiceAssistantHomeScreen>
 
   // Switches language locale between Egyptian Arabic and English.
   void _toggleLanguage() {
-    final newLocale = _speechService.currentLocale == 'ar_EG' ? 'en_US' : 'ar_EG';
+    final isCurrentlyArabic = _speechService.currentLocale.startsWith('ar');
+    final newLocale = isCurrentlyArabic ? 'en-US' : 'ar-EG';
     _speechService.setLocale(newLocale);
     setState(() {
-      _liveTranscript = newLocale == 'ar_EG'
+      _liveTranscript = !isCurrentlyArabic
           ? 'تم تفعيل اللغة العربية (اللهجة المصرية)...'
           : 'English voice recognition activated...';
     });
@@ -331,7 +332,7 @@ class _VoiceAssistantHomeScreenState extends State<VoiceAssistantHomeScreen>
   // Builds the main screen widget tree.
   @override
   Widget build(BuildContext context) {
-    final isArabic = _speechService.currentLocale == 'ar_EG';
+    final isArabic = _speechService.currentLocale.startsWith('ar');
     final isListening = _speechService.isListening;
 
     return Scaffold(
@@ -709,7 +710,7 @@ class _VoiceAssistantHomeScreenState extends State<VoiceAssistantHomeScreen>
                       ],
                     ),
                     Text(
-                      isArabic ? 'ar_EG' : 'en_US',
+                      isArabic ? 'ar-EG' : 'en-US',
                       style: const TextStyle(
                         color: Color(0xFFA1A1AA),
                         fontSize: 10.5,

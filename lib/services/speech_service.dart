@@ -32,8 +32,14 @@ class SpeechService {
   // Desired listening state requested by the user interface (used for auto-restart watchdog).
   bool _userWantsListening = false;
 
-  // Currently selected speech recognition language locale (defaults to Egyptian Arabic).
-  String _currentLocale = 'ar_EG';
+  // Currently selected speech recognition language locale (defaults to BCP-47 Egyptian Arabic 'ar-EG').
+  String _currentLocale = 'ar-EG';
+
+  // Resolved locale ID dynamically matched from the engine's available locales.
+  String _resolvedArabicLocaleId = 'ar-EG';
+
+  // Resolved English locale ID.
+  final String _resolvedEnglishLocaleId = 'en-US';
 
   // Stopwatch used to measure exact speech-to-command detection latency in milliseconds.
   final Stopwatch _latencyStopwatch = Stopwatch();
@@ -68,7 +74,7 @@ class SpeechService {
   // Getter providing public read-only access to active locale code.
   String get currentLocale => _currentLocale;
 
-  // Initializes the native Speech-to-Text engine and checks microphone permissions.
+  // Initializes the native Speech-to-Text engine and queries platform-supported locales.
   Future<bool> initialize() async {
     // Guards against redundant re-initialization if the engine is already prepared.
     if (_isInitialized) return true;
@@ -90,11 +96,33 @@ class SpeechService {
       debugLogging: kDebugMode,
     );
 
+    // Queries available platform locales to resolve exact BCP-47 tag for Egyptian Arabic.
+    if (_isInitialized) {
+      try {
+        final availableLocales = await _speechRecognizer.locales();
+        debugPrint('[STT Locales]: Found ${availableLocales.length} available speech locales on this system.');
+        for (final loc in availableLocales) {
+          final id = loc.localeId;
+          // Look for exact Egyptian Arabic locale (BCP-47 'ar-EG' or Java 'ar_EG').
+          if (id == 'ar-EG' || id == 'ar_EG') {
+            _resolvedArabicLocaleId = id;
+            break;
+          } else if (id.startsWith('ar') && _resolvedArabicLocaleId == 'ar-EG') {
+            // Fallback to any supported Arabic dialect if Egypt specific is absent.
+            _resolvedArabicLocaleId = id;
+          }
+        }
+        debugPrint('[STT Locales]: Active Arabic recognition locale set to "$_resolvedArabicLocaleId"');
+      } catch (e) {
+        debugPrint('[STT Locales Error]: $e');
+      }
+    }
+
     // Returns whether speech recognition engine successfully initialized.
     return _isInitialized;
   }
 
-  // Switches language between Egyptian Arabic ('ar_EG') and English ('en_US').
+  // Switches language between Egyptian Arabic ('ar-EG') and English ('en-US').
   Future<void> setLocale(String localeCode) async {
     // Updates internal locale string to the requested language code.
     _currentLocale = localeCode;
@@ -140,12 +168,16 @@ class SpeechService {
     // Starts stopwatch timer.
     _latencyStopwatch.start();
 
+    // Resolves the correct platform locale code (BCP-47 'ar-EG' on Web/Android).
+    final targetLocale = _currentLocale.startsWith('ar') ? _resolvedArabicLocaleId : _resolvedEnglishLocaleId;
+    debugPrint('[STT Session]: Listening stream started with locale: $targetLocale');
+
     // Invokes native speech recognition with ultra-fast partial processing settings.
     await _speechRecognizer.listen(
       // Callback invoked instantaneously as partial words are transcribed by the OS.
       onResult: _handleSpeechResult,
-      // Sets recognition language locale (e.g., 'ar_EG' or 'en_US').
-      localeId: _currentLocale,
+      // Sets recognition language locale (e.g., 'ar-EG' or 'en-US').
+      localeId: targetLocale,
       // Enables immediate partial stream delivery so words are processed in real-time.
       partialResults: true,
       // Uses confirmation mode for ultra-responsive low-latency keyword detection.

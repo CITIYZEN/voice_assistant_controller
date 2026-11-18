@@ -36,7 +36,7 @@ class _VoiceCommandRule {
   // Functional category of the command.
   final String category;
 
-  // List of English trigger phrases.
+  // List of English and Franco-Arabic (Arabizi) trigger phrases.
   final List<String> englishPhrases;
 
   // List of Egyptian Arabic trigger phrases.
@@ -50,14 +50,14 @@ class _VoiceCommandRule {
     required this.description,
     // Sets the category.
     required this.category,
-    // Sets the English phrases.
+    // Sets the English and Franco phrases.
     required this.englishPhrases,
     // Sets the Arabic phrases.
     required this.arabicPhrases,
   });
 }
 
-// CommandParser maps spoken English and Egyptian Arabic voice inputs to Arduino Serial tokens.
+// CommandParser maps spoken English, Egyptian Arabic, and Franco-Arabic inputs to Arduino Serial tokens.
 class CommandParser {
   // Comprehensive list of smart home voice command rules structured by priority:
   // Priority 1: SECTION C (Master Controls)
@@ -75,7 +75,7 @@ class CommandParser {
       description: 'Master Control: Turn All Devices ON',
       // Category identifier.
       category: 'Master',
-      // Spoken English phrases for master ON.
+      // Spoken English and Franco-Arabic phrases for master ON.
       englishPhrases: [
         'turn everything on',
         'turn all on',
@@ -83,6 +83,17 @@ class CommandParser {
         'all on',
         'everything on',
         'turn on everything',
+        // Franco-Arabic (Arabizi) variants:
+        'shaghal kol haga',
+        'shaghal kol 7aga',
+        'eftah kol haga',
+        'eftah kol 7aga',
+        'iftah kol haga',
+        'iftah kol 7aga',
+        'shaghal el kol',
+        'eftah el kol',
+        'kollo on',
+        'kolo on',
       ],
       // Spoken Egyptian Arabic phrases for master ON (normalized forms).
       arabicPhrases: [
@@ -102,7 +113,7 @@ class CommandParser {
       description: 'Master Control: Turn All Devices OFF (Goodnight)',
       // Category identifier.
       category: 'Master',
-      // Spoken English phrases for master OFF.
+      // Spoken English and Franco-Arabic phrases for master OFF.
       englishPhrases: [
         'turn everything off',
         'turn all off',
@@ -113,6 +124,23 @@ class CommandParser {
         'goodnight',
         'good night',
         'sleep mode',
+        // Franco-Arabic (Arabizi) variants:
+        'itfi kol haga',
+        'itfi kol 7aga',
+        'etfi kol haga',
+        'etfi kol 7aga',
+        'eqfel kol haga',
+        'eqfel kol 7aga',
+        'e2fel kol haga',
+        'ekfel kol haga',
+        'itfi el kol',
+        'etfi el kol',
+        'eqfel el kol',
+        'kollo off',
+        'kolo off',
+        'tisbah ala kheir',
+        'tesbah ala kheir',
+        'tisba7 3la 5air',
       ],
       // Spoken Egyptian Arabic phrases for master OFF (normalized forms).
       arabicPhrases: [
@@ -143,7 +171,7 @@ class CommandParser {
       description: 'RGB LED: Red Mood Lighting',
       // Category identifier.
       category: 'RGB',
-      // Spoken English phrases for Red.
+      // Spoken English and Franco-Arabic phrases for Red.
       englishPhrases: [
         'turn on the red light',
         'turn on red light',
@@ -153,6 +181,13 @@ class CommandParser {
         'make it red',
         'set red',
         'red led',
+        // Franco-Arabic variants:
+        'noor ahmar',
+        'noor a7mar',
+        'lawn ahmar',
+        'shaghal el ahmar',
+        'eftah el ahmar',
+        'iftah el ahmar',
       ],
       // Spoken Egyptian Arabic phrases for Red (normalized).
       arabicPhrases: [
@@ -175,7 +210,7 @@ class CommandParser {
       description: 'RGB LED: Green Mood Lighting',
       // Category identifier.
       category: 'RGB',
-      // Spoken English phrases for Green.
+      // Spoken English and Franco-Arabic phrases for Green.
       englishPhrases: [
         'turn on the green light',
         'turn on green light',
@@ -185,6 +220,13 @@ class CommandParser {
         'make it green',
         'set green',
         'green led',
+        // Franco-Arabic variants:
+        'noor akhdar',
+        'noor a5dar',
+        'lawn akhdar',
+        'shaghal el akhdar',
+        'eftah el akhdar',
+        'iftah el akhdar',
       ],
       // Spoken Egyptian Arabic phrases for Green (normalized).
       arabicPhrases: [
@@ -206,7 +248,7 @@ class CommandParser {
       description: 'RGB LED: Blue Mood Lighting',
       // Category identifier.
       category: 'RGB',
-      // Spoken English phrases for Blue.
+      // Spoken English and Franco-Arabic phrases for Blue.
       englishPhrases: [
         'turn on the blue light',
         'turn on blue light',
@@ -216,6 +258,14 @@ class CommandParser {
         'make it blue',
         'set blue',
         'blue led',
+        // Franco-Arabic variants:
+        'noor azraq',
+        'noor azra2',
+        'noor azrak',
+        'lawn azraq',
+        'shaghal el azraq',
+        'eftah el azraq',
+        'iftah el azraq',
       ],
       // Spoken Egyptian Arabic phrases for Blue (normalized).
       arabicPhrases: [
@@ -237,7 +287,7 @@ class CommandParser {
       description: 'RGB LED: White Ambient Lighting',
       // Category identifier.
       category: 'RGB',
-      // Spoken English phrases for White.
+      // Spoken English and Franco-Arabic phrases for White.
       englishPhrases: [
         'turn on the white light',
         'turn on white light',
@@ -247,6 +297,12 @@ class CommandParser {
         'make it white',
         'set white',
         'white led',
+        // Franco-Arabic variants:
+        'noor abyad',
+        'lawn abyad',
+        'shaghal el abyad',
+        'eftah el abyad',
+        'iftah el abyad',
       ],
       // Spoken Egyptian Arabic phrases for White (normalized).
       arabicPhrases: [
@@ -268,7 +324,7 @@ class CommandParser {
       description: 'RGB LED: Party Mode (Dynamic Rainbow Cycle)',
       // Category identifier.
       category: 'RGB',
-      // Spoken English phrases for Party Mode.
+      // Spoken English and Franco-Arabic phrases for Party Mode.
       englishPhrases: [
         'party mode',
         'color cycle',
@@ -276,6 +332,12 @@ class CommandParser {
         'party lights',
         'cycle colors',
         'disco mode',
+        // Franco-Arabic variants:
+        'mode el hafleh',
+        'shaghal el hafleh',
+        'alwan motaghayerah',
+        'alwan motaghaira',
+        'shaghal el disco',
       ],
       // Spoken Egyptian Arabic phrases for Party Mode (corrected and normalized).
       arabicPhrases: [
@@ -297,22 +359,34 @@ class CommandParser {
       description: 'RGB LED: Turn Off Mood Lighting',
       // Category identifier.
       category: 'RGB',
-      // Spoken English phrases for turning off RGB.
+      // Spoken English and Franco-Arabic phrases for turning off RGB.
       englishPhrases: [
         'turn off rgb',
         'rgb off',
         'turn off mood light',
         'turn off led',
         'turn off colors',
+        // Franco-Arabic variants:
+        'itfi el led',
+        'etfi el led',
+        'eqfel el led',
+        'e2fel el led',
+        'itfi el alwan',
+        'etfi el alwan',
+        'eqfel el alwan',
+        'itfi enoor el melawen',
+        'etfi enoor el melawen',
+        'itfi el noor el melawen',
+        'etfi el noor el melawen',
       ],
       // Spoken Egyptian Arabic phrases for turning off RGB (normalized).
       arabicPhrases: [
-        'اطفي الليد',
-        'اقفل الالوان',
-        'اطفي الالوان',
         'اطفي النور الملون',
         'اقفل النور الملون',
         'طفي النور الملون',
+        'اطفي الالوان',
+        'اقفل الالوان',
+        'اطفي الليد',
         'اقفل الليد',
         'طفي الليد',
       ],
@@ -330,8 +404,9 @@ class CommandParser {
       description: 'Relay 1 ON: Living Room Light (Pin D7)',
       // Category identifier.
       category: 'Relay',
-      // Spoken English phrases for turning on the light.
+      // Spoken English and Franco-Arabic phrases for turning on the light.
       englishPhrases: [
+        // English:
         'turn on the light',
         'turn on light',
         'light on',
@@ -339,17 +414,38 @@ class CommandParser {
         'turn light on',
         'switch on light',
         'turn on room light',
+        // Franco-Arabic (Arabizi) - Exact phrases reported by user:
+        'iftah enoor',
+        'iftah el noor',
+        'iftah elnoor',
+        'eftah enoor',
+        'eftah el noor',
+        'eftah elnoor',
+        'shaghal enoor',
+        'shaghal el noor',
+        'shaghal elnoor',
+        'sha8al enoor',
+        'sha8al el noor',
+        'walla3 enoor',
+        'walla3 el noor',
+        'wala3 el noor',
+        'shaghal noor el oda',
+        'iftah noor el oda',
+        'eftah noor el oda',
+        'noor on',
+        'el noor on',
+        'enoor on',
       ],
       // Spoken Egyptian Arabic phrases for turning on the light (normalized).
       arabicPhrases: [
         'شغل نور الاوضه',
         'نور الاوضه',
+        'شغل الاضاءه',
+        'افتح الاضاءه',
         'شغل النور',
         'افتح النور',
         'ولع النور',
         'نور اون',
-        'شغل الاضاءه',
-        'افتح الاضاءه',
         'شغل اللمبه',
         'افتح اللمبه',
       ],
@@ -362,8 +458,9 @@ class CommandParser {
       description: 'Relay 1 OFF: Living Room Light (Pin D7)',
       // Category identifier.
       category: 'Relay',
-      // Spoken English phrases for turning off the light.
+      // Spoken English and Franco-Arabic phrases for turning off the light.
       englishPhrases: [
+        // English:
         'turn off the light',
         'turn off light',
         'light off',
@@ -371,6 +468,26 @@ class CommandParser {
         'turn light off',
         'switch off light',
         'turn off room light',
+        // Franco-Arabic (Arabizi):
+        'itfi enoor',
+        'itfi el noor',
+        'itfi elnoor',
+        'etfi enoor',
+        'etfi el noor',
+        'etfi elnoor',
+        'eqfel enoor',
+        'eqfel el noor',
+        'eqfel elnoor',
+        'ekfel enoor',
+        'ekfel el noor',
+        'e2fel enoor',
+        'e2fel el noor',
+        'itfi noor el oda',
+        'etfi noor el oda',
+        'eqfel noor el oda',
+        'noor off',
+        'el noor off',
+        'enoor off',
       ],
       // Spoken Egyptian Arabic phrases for turning off the light (normalized).
       arabicPhrases: [
@@ -395,7 +512,7 @@ class CommandParser {
       description: 'Relay 2 ON: Cooling Fan (Pin D8)',
       // Category identifier.
       category: 'Relay',
-      // Spoken English phrases for turning on the fan.
+      // Spoken English and Franco-Arabic phrases for turning on the fan.
       englishPhrases: [
         'turn on the fan',
         'turn on fan',
@@ -403,6 +520,16 @@ class CommandParser {
         'turn fan on',
         'start fan',
         'switch on fan',
+        // Franco-Arabic (Arabizi):
+        'shaghal el marwaha',
+        'shaghal elmarwaha',
+        'sha8al el marwaha',
+        'eftah el marwaha',
+        'iftah el marwaha',
+        'iftah elmarwaha',
+        'shaghal el fan',
+        'marwaha on',
+        'el marwaha on',
       ],
       // Spoken Egyptian Arabic phrases for turning on the fan (normalized).
       arabicPhrases: [
@@ -421,7 +548,7 @@ class CommandParser {
       description: 'Relay 2 OFF: Cooling Fan (Pin D8)',
       // Category identifier.
       category: 'Relay',
-      // Spoken English phrases for turning off the fan.
+      // Spoken English and Franco-Arabic phrases for turning off the fan.
       englishPhrases: [
         'turn off the fan',
         'turn off fan',
@@ -429,6 +556,17 @@ class CommandParser {
         'turn fan off',
         'stop fan',
         'switch off fan',
+        // Franco-Arabic (Arabizi):
+        'itfi el marwaha',
+        'etfi el marwaha',
+        'itfi elmarwaha',
+        'etfi elmarwaha',
+        'eqfel el marwaha',
+        'ekfel el marwaha',
+        'e2fel el marwaha',
+        'waghaf el marwaha',
+        'marwaha off',
+        'el marwaha off',
       ],
       // Spoken Egyptian Arabic phrases for turning off the fan (normalized).
       arabicPhrases: [
@@ -448,7 +586,7 @@ class CommandParser {
       description: 'Relay 3 ON: Smart Plug / TV (Pin D9)',
       // Category identifier.
       category: 'Relay',
-      // Spoken English phrases for turning on the TV/plug.
+      // Spoken English and Franco-Arabic phrases for turning on the TV/plug.
       englishPhrases: [
         'turn on the tv',
         'turn on tv',
@@ -459,6 +597,20 @@ class CommandParser {
         'turn on the plug',
         'switch on tv',
         'turn on socket',
+        // Franco-Arabic (Arabizi):
+        'shaghal el tv',
+        'eftah el tv',
+        'iftah el tv',
+        'sha8al el tv',
+        'shaghal el television',
+        'eftah el television',
+        'iftah el television',
+        'shaghal el fesha',
+        'eftah el fesha',
+        'iftah el fesha',
+        'shaghal el shasha',
+        'eftah el shasha',
+        'iftah el shasha',
       ],
       // Spoken Egyptian Arabic phrases for turning on the TV/plug (normalized).
       arabicPhrases: [
@@ -481,7 +633,7 @@ class CommandParser {
       description: 'Relay 3 OFF: Smart Plug / TV (Pin D9)',
       // Category identifier.
       category: 'Relay',
-      // Spoken English phrases for turning off the TV/plug.
+      // Spoken English and Franco-Arabic phrases for turning off the TV/plug.
       englishPhrases: [
         'turn off the tv',
         'turn off tv',
@@ -492,6 +644,21 @@ class CommandParser {
         'turn off the plug',
         'switch off tv',
         'turn off socket',
+        // Franco-Arabic (Arabizi):
+        'itfi el tv',
+        'etfi el tv',
+        'eqfel el tv',
+        'e2fel el tv',
+        'ekfel el tv',
+        'itfi el television',
+        'etfi el television',
+        'eqfel el television',
+        'itfi el fesha',
+        'etfi el fesha',
+        'eqfel el fesha',
+        'itfi el shasha',
+        'etfi el shasha',
+        'eqfel el shasha',
       ],
       // Spoken Egyptian Arabic phrases for turning off the TV/plug (normalized).
       arabicPhrases: [
@@ -556,7 +723,7 @@ class CommandParser {
     // Iterates through all defined voice command rules in priority sequence:
     // Section C (Master Controls) -> Section B (RGB LED) -> Section A (Relay Appliances).
     for (final rule in _rules) {
-      // 1. Checks matching against English command trigger phrases.
+      // 1. Checks matching against English & Franco-Arabic command trigger phrases.
       for (final englishPhrase in rule.englishPhrases) {
         final target = englishPhrase.toLowerCase().trim();
         if (sanitizedInput.contains(target)) {
