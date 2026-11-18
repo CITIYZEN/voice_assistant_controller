@@ -22,7 +22,7 @@ dependencies:
     sdk: flutter
 
   # High-speed native Speech-to-Text library supporting partial stream recognition and Arabic/English.
-  speech_to_text: ^6.6.1
+  speech_to_text: ^7.0.0
 
   # HTTP client library for sending REST API commands to ESP32 Wi-Fi hardware bridge.
   http: ^1.2.1

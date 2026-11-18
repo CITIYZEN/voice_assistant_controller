@@ -1,5 +1,3 @@
-// Imports math utilities for rotation angle calculations.
-import 'dart:math' as math;
 // Imports core Flutter material design widgets and theming components.
 import 'package:flutter/material.dart';
 // Imports HardwareBridge models and state definitions.
