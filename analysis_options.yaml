@@ -3,7 +3,7 @@ include: package:flutter_lints/flutter.yaml
 
 # Customizes analyzer settings for the Dart compiler and linter.
 analyzer:
-  # Instructs analyzer to ignore warnings and deprecation notices across different Flutter SDK versions.
+   # Instructs analyzer to ignore warnings and deprecation notices across different Flutter SDK versions.
   errors:
     # Ignores deprecation warnings to maintain backward and forward compatibility.
     deprecated_member_use: ignore
