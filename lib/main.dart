@@ -148,7 +148,8 @@ class _VoiceAssistantHomeScreenState extends State<VoiceAssistantHomeScreen> wit
     _speechService.onSoundLevelChanged = (level) {
       if (mounted) {
         setState(() {
-          _soundLevel = level;
+          // Clamps sound level between 0.0 and 10.0 to prevent negative dB values from shrinking the microphone.
+          _soundLevel = level.clamp(0.0, 10.0);
         });
       }
     };

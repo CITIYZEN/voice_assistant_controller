@@ -40,6 +40,16 @@ class _SerialMonitorState extends State<SerialMonitor> {
     widget.bridge.addListener(_onBridgeUpdated);
   }
 
+  // Re-binds bridge listener if parent updates widget configuration.
+  @override
+  void didUpdateWidget(covariant SerialMonitor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.bridge != widget.bridge) {
+      oldWidget.bridge.removeListener(_onBridgeUpdated);
+      widget.bridge.addListener(_onBridgeUpdated);
+    }
+  }
+
   // Listener called whenever new serial messages are logged.
   void _onBridgeUpdated() {
     // Rebuilds widget to display newly appended log entries.
@@ -52,18 +62,14 @@ class _SerialMonitorState extends State<SerialMonitor> {
     }
   }
 
-  // Smoothly animates scroll position to the bottom of the console list.
+  // Snaps scroll position to the bottom of the console list without animation queue jitter.
   void _scrollToBottom() {
     // Delays execution to ensure Flutter layout measurement has finalized.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Verifies scroll controller is attached to active viewport.
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOut,
-        );
-      }
+      // Verifies widget is mounted and scroll controller is attached to active viewport.
+      if (!mounted || !_scrollController.hasClients) return;
+      // Snaps directly to bottom using jumpTo to avoid queue stuttering during rapid serial logging.
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     });
   }
 
@@ -164,38 +170,49 @@ class _SerialMonitorState extends State<SerialMonitor> {
             ),
             child: Row(
               children: [
-                // Terminal prompt icon.
-                const Icon(
-                  Icons.terminal,
-                  color: Color(0xFF10B981),
-                  size: 18.0,
-                ),
-                const SizedBox(width: 8.0),
-                // Console title.
-                const Text(
-                  'Serial Monitor',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 6.0),
-                // Serial parameters badge.
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF020617),
-                    borderRadius: BorderRadius.circular(4.0),
-                    border: Border.all(color: const Color(0xFF334155)),
-                  ),
-                  child: const Text(
-                    '9600 8-N-1',
-                    style: TextStyle(
-                      color: Color(0xFF94A3B8),
-                      fontSize: 10.0,
-                      fontFamily: 'monospace',
-                    ),
+                // Left title section wrapped in Flexible with overflow protection.
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Terminal prompt icon.
+                      const Icon(
+                        Icons.terminal,
+                        color: Color(0xFF10B981),
+                        size: 18.0,
+                      ),
+                      const SizedBox(width: 8.0),
+                      // Console title with ellipsis overflow protection.
+                      const Flexible(
+                        child: Text(
+                          'Serial Monitor',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6.0),
+                      // Serial parameters badge.
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF020617),
+                          borderRadius: BorderRadius.circular(4.0),
+                          border: Border.all(color: const Color(0xFF334155)),
+                        ),
+                        child: const Text(
+                          '9600 8-N-1',
+                          style: TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 10.0,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 

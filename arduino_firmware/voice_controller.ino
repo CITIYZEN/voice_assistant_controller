@@ -51,6 +51,9 @@ void setHueColor(int hue);
 
 // Arduino setup function executed once at microcontroller boot
 void setup() {
+  // Pre-allocates SRAM buffer memory to prevent dynamic heap fragmentation on ATmega328P
+  inputBuffer.reserve(32);
+
   // Configures the hardware UART serial port for communication at 9600 Baud
   Serial.begin(9600);
 
@@ -106,6 +109,11 @@ void loop() {
     } else {
       // Appends character to the accumulated command string buffer
       inputBuffer += incomingChar;
+
+      // Microcontroller SRAM safety guard: flush buffer if noisy serial data exceeds capacity
+      if (inputBuffer.length() > 32) {
+        inputBuffer = "";
+      }
     }
   }
 

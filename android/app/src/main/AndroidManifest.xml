@@ -34,10 +34,12 @@
     </queries>
 
     <!-- Main application tag configuring UI themes, app labels, and process attributes -->
+    <!-- android:usesCleartextTraffic="true" enables HTTP REST communication with ESP32 microcontrollers -->
     <application
         android:label="HVASSI Voice Controller"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
 
         <!-- Declares the primary Android Activity launched when user opens the app -->
         <activity

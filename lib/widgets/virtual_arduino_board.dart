@@ -74,6 +74,17 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
     }
   }
 
+  // Re-evaluates animation playing states and re-attaches listener if bridge reference updates.
+  @override
+  void didUpdateWidget(covariant VirtualArduinoBoard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.bridge != widget.bridge) {
+      oldWidget.bridge.removeListener(_onBridgeChanged);
+      widget.bridge.addListener(_onBridgeChanged);
+      _updateAnimationStates();
+    }
+  }
+
   // Manages playing/stopping of fan and RGB animations based on bridge state.
   void _updateAnimationStates() {
     // Controls fan spinning animation based on Relay 2 state.
@@ -179,50 +190,57 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
           // BOARD HEADER: Title, Microcontroller Model & Activity LEDs
           // -----------------------------------------------------------
           Row(
-            // Distributes space evenly.
+            // Distributes space evenly between title section and activity LEDs.
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Board name & architecture badge.
-              Row(
-                children: [
-                  // Microchip icon.
-                  const Icon(
-                    Icons.developer_board,
-                    color: Color(0xFF38BDF8),
-                    size: 22.0,
-                  ),
-                  const SizedBox(width: 8.0),
-                  // Title text.
-                  const Text(
-                    'Virtual Arduino Uno R3',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+              // Board name & architecture badge wrapped in Expanded to prevent RenderFlex overflow.
+              Expanded(
+                child: Row(
+                  children: [
+                    // Microchip icon.
+                    const Icon(
+                      Icons.developer_board,
+                      color: Color(0xFF38BDF8),
+                      size: 22.0,
                     ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  // Baud rate badge.
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
-                      borderRadius: BorderRadius.circular(6.0),
-                      border: Border.all(color: const Color(0xFF334155)),
-                    ),
-                    child: const Text(
-                      '9600 BAUD',
-                      style: TextStyle(
-                        color: Color(0xFF94A3B8),
-                        fontSize: 10.0,
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.w600,
+                    const SizedBox(width: 8.0),
+                    // Title text wrapped in Flexible with ellipsis for narrow screens.
+                    const Flexible(
+                      child: Text(
+                        'Virtual Arduino Uno R3',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8.0),
+                    // Baud rate badge.
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F172A),
+                        borderRadius: BorderRadius.circular(6.0),
+                        border: Border.all(color: const Color(0xFF334155)),
+                      ),
+                      child: const Text(
+                        '9600 BAUD',
+                        style: TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 10.0,
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+
+              const SizedBox(width: 8.0),
 
               // Activity LEDs (PWR, TX, RX).
               Row(

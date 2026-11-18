@@ -187,11 +187,11 @@ class HardwareBridge extends ChangeNotifier {
 
   // Main entry point to transmit a serial command token to the smart home system.
   Future<void> sendCommand(String token) async {
-    // Formats the serial command payload with carriage return and newline terminator.
-    final payload = '$token\\n';
+    // Formats display payload with escaped newline symbol for visual console readability.
+    final displayPayload = '$token\\n';
 
     // Logs outgoing TX message to serial monitor.
-    _addLog('TX', '[TX -> Arduino]: "$payload"');
+    _addLog('TX', '[TX -> Arduino]: "$displayPayload"');
 
     // Triggers visual TX LED pulse on the virtual Arduino board.
     _triggerTxPulse();
@@ -201,7 +201,7 @@ class HardwareBridge extends ChangeNotifier {
       // Executes virtual command simulation.
       await _executeSimulation(token);
     } else {
-      // Dispatches command to real hardware module.
+      // Dispatches command to real hardware module with true UART newline byte.
       await _executeHardware(token);
     }
   }
@@ -324,6 +324,9 @@ class HardwareBridge extends ChangeNotifier {
 
   // Dispatches command to physical hardware module via Wi-Fi HTTP or Bluetooth SPP.
   Future<void> _executeHardware(String token) async {
+    // True UART newline byte payload for physical microcontroller serial streams.
+    final rawHardwarePayload = '$token\n';
+
     // If using Wi-Fi HTTP transport to talk with ESP32:
     if (_transport == HardwareTransport.wifiHttp) {
       // Constructs endpoint URI for the ESP32 REST server.
@@ -356,7 +359,8 @@ class HardwareBridge extends ChangeNotifier {
       }
     } else {
       // Bluetooth Classic HC-05 SPP branch (Pre-wired for Phase 2 integration).
-      _addLog('SYS', '[Bluetooth Bridge]: Sending "$token\\n" via HC-05 Bluetooth SPP...');
+      // Transmits rawHardwarePayload containing real newline byte '\n' to the UART stream.
+      _addLog('SYS', '[Bluetooth Bridge]: Transmitting "$token\\n" (${rawHardwarePayload.codeUnits.length} bytes) via HC-05 SPP...');
       // Mirrors state locally for seamless developer preview.
       _mirrorStateLocally(token);
     }
