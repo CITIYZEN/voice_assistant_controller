@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // Imports HardwareBridge models and state definitions.
 import '../services/hardware_bridge.dart';
 
-// VirtualArduinoBoard renders an interactive visual simulation of an Arduino Uno and connected peripherals.
+// VirtualArduinoBoard renders an interactive visual Bento simulation of an Arduino Uno and connected peripherals.
 class VirtualArduinoBoard extends StatefulWidget {
   // Reference to the shared hardware bridge instance.
   final HardwareBridge bridge;
@@ -23,7 +23,7 @@ class VirtualArduinoBoard extends StatefulWidget {
 
 // State class managing animations and board interactions.
 class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerProviderStateMixin {
-  // Animation controller driving the continuous spinning motion of the cooling fan icon when Relay 2 is ON.
+  // Animation controller driving the spinning motion of the cooling fan icon when Relay 2 is ON.
   late AnimationController _fanController;
 
   // Animation controller driving the rainbow color cycle for the RGB LED party mode.
@@ -40,17 +40,13 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
 
     // Sets up fan rotation animation controller with 1-second continuous rotation loop.
     _fanController = AnimationController(
-      // Binds ticker provider.
       vsync: this,
-      // Sets revolution duration.
       duration: const Duration(milliseconds: 1000),
     );
 
     // Sets up RGB cycle animation controller with 3-second continuous rainbow loop.
     _rgbCycleController = AnimationController(
-      // Binds ticker provider.
       vsync: this,
-      // Sets full spectrum cycle duration.
       duration: const Duration(milliseconds: 3000),
     );
 
@@ -129,108 +125,81 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
 
   // Resolves the current display color for the virtual RGB LED.
   Color _resolveRgbColor() {
-    // Checks active RGB mode.
     switch (widget.bridge.rgbMode) {
-      // Extinguished LED.
       case RgbMode.off:
-        return const Color(0xFF1E232A);
-      // Solid Red.
+        return const Color(0xFF27272A);
       case RgbMode.red:
-        return const Color(0xFFFF1744);
-      // Solid Green.
+        return const Color(0xFFEF4444);
       case RgbMode.green:
-        return const Color(0xFF00E676);
-      // Solid Blue.
+        return const Color(0xFF10B981);
       case RgbMode.blue:
-        return const Color(0xFF2979FF);
-      // Solid White.
+        return const Color(0xFF3B82F6);
       case RgbMode.white:
-        return const Color(0xFFFFFFFF);
-      // Dynamic rainbow cycle in party mode.
+        return const Color(0xFFFAFAFA);
       case RgbMode.cycle:
         return HSLColor.fromAHSL(1.0, _rainbowHueAnimation.value, 1.0, 0.55).toColor();
     }
   }
 
-  // Builds the virtual Arduino board widget tree.
+  // Builds the virtual Arduino board widget tree in a modern Bento Grid.
   @override
   Widget build(BuildContext context) {
-    // Wraps entire board in styled container card.
+    // Calculates count of active relays for status summary.
+    final activeRelayCount = (widget.bridge.relay1On ? 1 : 0) +
+        (widget.bridge.relay2On ? 1 : 0) +
+        (widget.bridge.relay3On ? 1 : 0);
+
     return Container(
-      // Margin around board card.
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      // Padding inside card.
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
       padding: const EdgeInsets.all(16.0),
-      // Container decoration with dark glassmorphism aesthetic.
       decoration: BoxDecoration(
-        // Dark slate background resembling microcontroller PCB.
-        color: const Color(0xFF111722),
-        // Rounded corners.
-        borderRadius: BorderRadius.circular(20.0),
-        // Subtle border giving a high-tech hardware look.
-        border: Border.all(
-          color: const Color(0xFF1E293B),
-          width: 1.5,
-        ),
-        // Soft drop shadow.
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 16.0,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: const Color(0xFF121215),
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFF27272A)),
       ),
-      // Column holding header, board status, relay cards, and RGB module.
       child: Column(
-        // Aligns children to start horizontally.
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // -----------------------------------------------------------
           // BOARD HEADER: Title, Microcontroller Model & Activity LEDs
           // -----------------------------------------------------------
           Row(
-            // Distributes space evenly between title section and activity LEDs.
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Board name & architecture badge wrapped in Expanded to prevent RenderFlex overflow.
+              // Board name & architecture badge wrapped in Expanded to prevent overflow.
               Expanded(
                 child: Row(
                   children: [
-                    // Microchip icon.
                     const Icon(
                       Icons.developer_board,
-                      color: Color(0xFF38BDF8),
-                      size: 22.0,
+                      color: Color(0xFFA1A1AA),
+                      size: 18.0,
                     ),
                     const SizedBox(width: 8.0),
-                    // Title text wrapped in Flexible with ellipsis for narrow screens.
                     const Flexible(
                       child: Text(
-                        'Virtual Arduino Uno R3',
+                        'Arduino Uno R3',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+                          color: Color(0xFFFAFAFA),
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                     const SizedBox(width: 8.0),
-                    // Baud rate badge.
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0F172A),
+                        color: const Color(0xFF18181B),
                         borderRadius: BorderRadius.circular(6.0),
-                        border: Border.all(color: const Color(0xFF334155)),
+                        border: Border.all(color: const Color(0xFF27272A)),
                       ),
                       child: const Text(
                         '9600 BAUD',
                         style: TextStyle(
-                          color: Color(0xFF94A3B8),
-                          fontSize: 10.0,
+                          color: Color(0xFFA1A1AA),
+                          fontSize: 9.5,
                           fontFamily: 'monospace',
                           fontWeight: FontWeight.w600,
                         ),
@@ -245,129 +214,170 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
               // Activity LEDs (PWR, TX, RX).
               Row(
                 children: [
-                  // Power indicator LED (Always green when active).
-                  _buildStatusLed('PWR', Colors.greenAccent, isLit: true),
+                  _buildStatusLed('PWR', const Color(0xFF10B981), isLit: true),
                   const SizedBox(width: 8.0),
-                  // TX indicator LED (Blinks orange on transmission).
-                  _buildStatusLed('TX', Colors.orangeAccent, isLit: widget.bridge.txBlinking),
+                  _buildStatusLed('TX', const Color(0xFFF59E0B), isLit: widget.bridge.txBlinking),
                   const SizedBox(width: 8.0),
-                  // RX indicator LED (Blinks yellow on reception).
-                  _buildStatusLed('RX', Colors.amberAccent, isLit: widget.bridge.rxBlinking),
+                  _buildStatusLed('RX', const Color(0xFF06B6D4), isLit: widget.bridge.rxBlinking),
                 ],
               ),
             ],
           ),
 
-          const SizedBox(height: 16.0),
-          const Divider(color: Color(0xFF1E293B), height: 1.0),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: 14.0),
+          const Divider(color: Color(0xFF27272A), height: 1.0),
+          const SizedBox(height: 14.0),
 
-          // Section Title: Relay Appliances
-          const Row(
+          // -----------------------------------------------------------
+          // 2-COLUMN HARDWARE BENTO GRID (Relays 1, 2, 3 & Summary)
+          // -----------------------------------------------------------
+          Row(
             children: [
-              Icon(Icons.power, color: Color(0xFF94A3B8), size: 16.0),
-              SizedBox(width: 6.0),
-              Text(
-                '3-CHANNEL 5V RELAY MODULE',
-                style: TextStyle(
-                  color: Color(0xFF94A3B8),
-                  fontSize: 11.0,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
+              // Column 1: Relay 1 (Light D7)
+              Expanded(
+                child: _buildBentoRelayTile(
+                  title: 'Living Light',
+                  pinLabel: 'D7',
+                  isOn: widget.bridge.relay1On,
+                  accentColor: const Color(0xFFF59E0B),
+                  icon: Icons.lightbulb,
+                  onToggle: () => widget.bridge.toggleRelay(1),
+                  hint: '"turn on light"',
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              // Column 2: Relay 2 (Fan D8)
+              Expanded(
+                child: _buildBentoRelayTile(
+                  title: 'Cooling Fan',
+                  pinLabel: 'D8',
+                  isOn: widget.bridge.relay2On,
+                  accentColor: const Color(0xFF06B6D4),
+                  icon: Icons.toys,
+                  customIcon: RotationTransition(
+                    turns: _fanController,
+                    child: Icon(
+                      Icons.toys,
+                      size: 20.0,
+                      color: widget.bridge.relay2On ? const Color(0xFF06B6D4) : const Color(0xFF71717A),
+                    ),
+                  ),
+                  onToggle: () => widget.bridge.toggleRelay(2),
+                  hint: '"turn on fan"',
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 12.0),
-
-          // -----------------------------------------------------------
-          // 3 INTERACTIVE RELAY CARDS (Light D7, Fan D8, Plug/TV D9)
-          // -----------------------------------------------------------
-          // Relay 1 Card: Living Room Light (Pin D7)
-          _buildRelayCard(
-            title: 'Living Room Light',
-            pinLabel: 'Pin D7',
-            isOn: widget.bridge.relay1On,
-            accentColor: const Color(0xFFFFB703),
-            icon: Icons.lightbulb,
-            onToggle: () => widget.bridge.toggleRelay(1),
-            voiceHint: '"turn on the light" / "شغل النور"',
-          ),
-
           const SizedBox(height: 10.0),
 
-          // Relay 2 Card: Cooling Fan (Pin D8) with rotation animation
-          _buildRelayCard(
-            title: 'Cooling Fan',
-            pinLabel: 'Pin D8',
-            isOn: widget.bridge.relay2On,
-            accentColor: const Color(0xFF00F5D4),
-            icon: Icons.mode_fan_off,
-            customIconWidget: RotationTransition(
-              turns: _fanController,
-              child: Icon(
-                Icons.toys,
-                color: widget.bridge.relay2On ? const Color(0xFF00F5D4) : const Color(0xFF64748B),
-                size: 26.0,
-              ),
-            ),
-            onToggle: () => widget.bridge.toggleRelay(2),
-            voiceHint: '"turn on the fan" / "شغل المروحة"',
-          ),
-
-          const SizedBox(height: 10.0),
-
-          // Relay 3 Card: Smart Plug / TV (Pin D9)
-          _buildRelayCard(
-            title: 'Smart Plug / TV',
-            pinLabel: 'Pin D9',
-            isOn: widget.bridge.relay3On,
-            accentColor: const Color(0xFFB5179E),
-            icon: Icons.tv,
-            onToggle: () => widget.bridge.toggleRelay(3),
-            voiceHint: '"turn on the tv" / "شغل الفيشة"',
-          ),
-
-          const SizedBox(height: 20.0),
-          const Divider(color: Color(0xFF1E293B), height: 1.0),
-          const SizedBox(height: 16.0),
-
-          // -----------------------------------------------------------
-          // VIRTUAL RGB LED MODULE (Pins D3, D5, D6 PWM)
-          // -----------------------------------------------------------
-          const Row(
+          Row(
             children: [
-              Icon(Icons.palette, color: Color(0xFF94A3B8), size: 16.0),
-              SizedBox(width: 6.0),
-              Text(
-                'PWM RGB MOOD LIGHTING (PINS D3/D5/D6)',
-                style: TextStyle(
-                  color: Color(0xFF94A3B8),
-                  fontSize: 11.0,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
+              // Column 1: Relay 3 (TV / Plug D9)
+              Expanded(
+                child: _buildBentoRelayTile(
+                  title: 'Smart TV',
+                  pinLabel: 'D9',
+                  isOn: widget.bridge.relay3On,
+                  accentColor: const Color(0xFFA855F7),
+                  icon: Icons.tv,
+                  onToggle: () => widget.bridge.toggleRelay(3),
+                  hint: '"turn on tv"',
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              // Column 2: Master Relay Status Summary Tile
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF09090B),
+                    borderRadius: BorderRadius.circular(12.0),
+                    border: Border.all(color: const Color(0xFF27272A)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'RELAY BUS',
+                            style: TextStyle(
+                              color: Color(0xFF71717A),
+                              fontSize: 9.5,
+                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF18181B),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            child: const Text(
+                              '5V VCC',
+                              style: TextStyle(
+                                color: Color(0xFFA1A1AA),
+                                fontSize: 9.0,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12.0),
+                      Text(
+                        '$activeRelayCount of 3 Active',
+                        style: const TextStyle(
+                          color: Color(0xFFFAFAFA),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2.0),
+                      Text(
+                        activeRelayCount == 3
+                            ? 'All channels closed'
+                            : activeRelayCount == 0
+                                ? 'All channels open'
+                                : 'Mixed state',
+                        style: const TextStyle(
+                          color: Color(0xFFA1A1AA),
+                          fontSize: 10.5,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
 
           const SizedBox(height: 14.0),
+          const Divider(color: Color(0xFF27272A), height: 1.0),
+          const SizedBox(height: 14.0),
 
-          // RGB Module Container Card
+          // -----------------------------------------------------------
+          // BENTO ROW: PWM RGB MOOD LIGHTING (PINS D3/D5/D6)
+          // -----------------------------------------------------------
           Container(
-            padding: const EdgeInsets.all(14.0),
+            padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: const Color(0xFF0A0F18),
-              borderRadius: BorderRadius.circular(16.0),
-              border: Border.all(color: const Color(0xFF1E293B)),
+              color: const Color(0xFF09090B),
+              borderRadius: BorderRadius.circular(12.0),
+              border: Border.all(color: const Color(0xFF27272A)),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Top row with virtual glowing LED diffuser and active status.
                 Row(
                   children: [
-                    // Animated builder updating color continuously during party mode cycle.
+                    // RGB LED Lens Indicator.
                     AnimatedBuilder(
                       animation: _rgbCycleController,
                       builder: (context, child) {
@@ -375,65 +385,70 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
                         final isRgbActive = widget.bridge.rgbMode != RgbMode.off;
 
                         return Container(
-                          width: 58.0,
-                          height: 58.0,
+                          width: 32.0,
+                          height: 32.0,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: rgbColor,
-                            // Dynamic multi-layered glow shadow.
+                            border: Border.all(
+                              color: isRgbActive ? Colors.white.withOpacity(0.5) : const Color(0xFF27272A),
+                              width: 1.5,
+                            ),
                             boxShadow: isRgbActive
                                 ? [
                                     BoxShadow(
-                                      color: rgbColor.withOpacity(0.65),
-                                      blurRadius: 24.0,
-                                      spreadRadius: 4.0,
-                                    ),
-                                    BoxShadow(
-                                      color: rgbColor.withOpacity(0.3),
-                                      blurRadius: 48.0,
-                                      spreadRadius: 10.0,
+                                      color: rgbColor.withOpacity(0.35),
+                                      blurRadius: 10.0,
+                                      spreadRadius: 1.0,
                                     ),
                                   ]
                                 : [],
-                            border: Border.all(
-                              color: isRgbActive ? Colors.white.withOpacity(0.8) : const Color(0xFF334155),
-                              width: 2.0,
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.flare,
-                              color: isRgbActive ? Colors.white.withOpacity(0.9) : const Color(0xFF475569),
-                              size: 24.0,
-                            ),
                           ),
                         );
                       },
                     ),
 
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: 12.0),
 
-                    // RGB Mode description and voice command tip.
+                    // Title & PWM Pin badge.
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Status title.
+                          Row(
+                            children: [
+                              const Text(
+                                'RGB Mood Light',
+                                style: TextStyle(
+                                  color: Color(0xFFFAFAFA),
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 6.0),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.0),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF18181B),
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                child: const Text(
+                                  'D3, D5, D6',
+                                  style: TextStyle(
+                                    color: Color(0xFFA1A1AA),
+                                    fontSize: 9.5,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2.0),
                           Text(
                             _getRgbModeTitle(widget.bridge.rgbMode),
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4.0),
-                          // Voice suggestion text.
-                          Text(
-                            _getRgbModeHint(widget.bridge.rgbMode),
-                            style: const TextStyle(
-                              color: Color(0xFF94A3B8),
-                              fontSize: 12.0,
+                              color: Color(0xFFA1A1AA),
+                              fontSize: 11.0,
                             ),
                           ),
                         ],
@@ -442,19 +457,19 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
                   ],
                 ),
 
-                const SizedBox(height: 14.0),
+                const SizedBox(height: 12.0),
 
                 // Manual Tap-to-Test Quick Color Selector Chips
                 Wrap(
-                  spacing: 8.0,
-                  runSpacing: 8.0,
+                  spacing: 6.0,
+                  runSpacing: 6.0,
                   children: [
-                    _buildRgbChip('Red', const Color(0xFFFF1744), RgbMode.red),
-                    _buildRgbChip('Green', const Color(0xFF00E676), RgbMode.green),
-                    _buildRgbChip('Blue', const Color(0xFF2979FF), RgbMode.blue),
-                    _buildRgbChip('White', Colors.white, RgbMode.white),
-                    _buildRgbChip('Party Mode', const Color(0xFFFF007F), RgbMode.cycle, isParty: true),
-                    _buildRgbChip('OFF', const Color(0xFF64748B), RgbMode.off),
+                    _buildRgbPill('Red', const Color(0xFFEF4444), RgbMode.red),
+                    _buildRgbPill('Green', const Color(0xFF10B981), RgbMode.green),
+                    _buildRgbPill('Blue', const Color(0xFF3B82F6), RgbMode.blue),
+                    _buildRgbPill('White', const Color(0xFFFAFAFA), RgbMode.white),
+                    _buildRgbPill('Party', const Color(0xFFEC4899), RgbMode.cycle),
+                    _buildRgbPill('Off', const Color(0xFF71717A), RgbMode.off),
                   ],
                 ),
               ],
@@ -465,155 +480,110 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
     );
   }
 
-  // Returns human-friendly title for the active RGB mode.
+  // Returns concise title for active RGB mode.
   String _getRgbModeTitle(RgbMode mode) {
     switch (mode) {
       case RgbMode.off:
-        return 'RGB LED: Extinguished (OFF)';
+        return 'Extinguished (OFF)';
       case RgbMode.red:
-        return 'RGB LED: Solid Red Mood';
+        return 'Solid Red Mood';
       case RgbMode.green:
-        return 'RGB LED: Solid Green Mood';
+        return 'Solid Green Mood';
       case RgbMode.blue:
-        return 'RGB LED: Solid Blue Mood';
+        return 'Solid Blue Mood';
       case RgbMode.white:
-        return 'RGB LED: Ambient White';
+        return 'Ambient White';
       case RgbMode.cycle:
-        return 'RGB LED: 🎉 Party Mode (Dynamic)';
+        return 'Party Mode Cycle';
     }
   }
 
-  // Returns voice command suggestion corresponding to current RGB mode.
-  String _getRgbModeHint(RgbMode mode) {
-    switch (mode) {
-      case RgbMode.off:
-        return 'Say "red light" or "وضع الحفلة" to ignite';
-      case RgbMode.red:
-        return 'Active token: RGB_RED ("نور أحمر")';
-      case RgbMode.green:
-        return 'Active token: RGB_GREEN ("نور أخضر")';
-      case RgbMode.blue:
-        return 'Active token: RGB_BLUE ("نور أزرق")';
-      case RgbMode.white:
-        return 'Active token: RGB_WHITE ("نور أبيض")';
-      case RgbMode.cycle:
-        return 'Active token: RGB_CYCLE ("ألوان متغيرة")';
-    }
-  }
-
-  // Builds an interactive Relay card with glowing indicators and manual switch.
-  Widget _buildRelayCard({
+  // Builds an interactive Bento Relay card.
+  Widget _buildBentoRelayTile({
     required String title,
     required String pinLabel,
     required bool isOn,
     required Color accentColor,
     required IconData icon,
-    Widget? customIconWidget,
+    Widget? customIcon,
     required VoidCallback onToggle,
-    required String voiceHint,
+    required String hint,
   }) {
-    // Wraps card in gesture detector for intuitive tap-to-toggle.
     return InkWell(
       onTap: onToggle,
-      borderRadius: BorderRadius.circular(14.0),
+      borderRadius: BorderRadius.circular(12.0),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: isOn ? accentColor.withOpacity(0.08) : const Color(0xFF0A0F18),
-          borderRadius: BorderRadius.circular(14.0),
+          color: isOn ? accentColor.withOpacity(0.08) : const Color(0xFF09090B),
+          borderRadius: BorderRadius.circular(12.0),
           border: Border.all(
-            color: isOn ? accentColor.withOpacity(0.6) : const Color(0xFF1E293B),
-            width: isOn ? 1.5 : 1.0,
+            color: isOn ? accentColor.withOpacity(0.5) : const Color(0xFF27272A),
+            width: 1.0,
           ),
-          boxShadow: isOn
-              ? [
-                  BoxShadow(
-                    color: accentColor.withOpacity(0.18),
-                    blurRadius: 14.0,
-                    spreadRadius: 1.0,
-                  ),
-                ]
-              : [],
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon container with glow effect when relay is energized.
-            Container(
-              width: 44.0,
-              height: 44.0,
-              decoration: BoxDecoration(
-                color: isOn ? accentColor.withOpacity(0.2) : const Color(0xFF1E293B),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: customIconWidget ??
-                    Icon(
-                      icon,
-                      color: isOn ? accentColor : const Color(0xFF64748B),
-                      size: 22.0,
-                    ),
-              ),
-            ),
-
-            const SizedBox(width: 12.0),
-
-            // Device details column.
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title and Pin Badge row.
-                  Row(
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          color: isOn ? Colors.white : const Color(0xFFCBD5E1),
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B),
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        child: Text(
-                          pinLabel,
-                          style: const TextStyle(
-                            color: Color(0xFF38BDF8),
-                            fontSize: 10.0,
-                            fontFamily: 'monospace',
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+            // Top Row: Pin label and Active status indicator dot.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF18181B),
+                    borderRadius: BorderRadius.circular(4.0),
                   ),
-                  const SizedBox(height: 3.0),
-                  // Voice command hint.
-                  Text(
-                    voiceHint,
+                  child: Text(
+                    pinLabel,
                     style: const TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 11.0,
+                      color: Color(0xFFA1A1AA),
+                      fontSize: 9.5,
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
+                ),
+                Container(
+                  width: 7.0,
+                  height: 7.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isOn ? accentColor : const Color(0xFF27272A),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10.0),
+            // Icon.
+            customIcon ??
+                Icon(
+                  icon,
+                  size: 20.0,
+                  color: isOn ? accentColor : const Color(0xFF71717A),
+                ),
+            const SizedBox(height: 8.0),
+            // Title.
+            Text(
+              title,
+              style: TextStyle(
+                color: isOn ? const Color(0xFFFAFAFA) : const Color(0xFFA1A1AA),
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
               ),
             ),
-
-            // Interactive state toggle switch.
-            Switch(
-              value: isOn,
-              onChanged: (_) => onToggle(),
-              activeColor: accentColor,
-              activeTrackColor: accentColor.withOpacity(0.4),
-              inactiveThumbColor: const Color(0xFF64748B),
-              inactiveTrackColor: const Color(0xFF1E293B),
+            const SizedBox(height: 2.0),
+            // Hint.
+            Text(
+              isOn ? 'ON' : 'OFF',
+              style: TextStyle(
+                color: isOn ? accentColor : const Color(0xFF71717A),
+                fontSize: 10.5,
+                fontFamily: 'monospace',
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -621,78 +591,69 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
     );
   }
 
-  // Builds an activity indicator LED with label (PWR, TX, RX).
+  // Builds an activity indicator dot with label.
   Widget _buildStatusLed(String label, Color color, {required bool isLit}) {
-    return Column(
+    return Row(
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 80),
-          width: 9.0,
-          height: 9.0,
+          width: 6.5,
+          height: 6.5,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isLit ? color : const Color(0xFF1E293B),
-            boxShadow: isLit
-                ? [
-                    BoxShadow(
-                      color: color.withOpacity(0.8),
-                      blurRadius: 8.0,
-                      spreadRadius: 2.0,
-                    ),
-                  ]
-                : [],
+            color: isLit ? color : const Color(0xFF27272A),
           ),
         ),
-        const SizedBox(height: 3.0),
+        const SizedBox(width: 4.0),
         Text(
           label,
           style: const TextStyle(
-            color: Color(0xFF64748B),
-            fontSize: 8.5,
+            color: Color(0xFF71717A),
+            fontSize: 9.0,
             fontFamily: 'monospace',
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
     );
   }
 
-  // Builds an interactive tap chip for quick RGB color testing.
-  Widget _buildRgbChip(String label, Color color, RgbMode mode, {bool isParty = false}) {
+  // Builds a minimalist color pill for RGB selection.
+  Widget _buildRgbPill(String label, Color color, RgbMode mode) {
     final isSelected = widget.bridge.rgbMode == mode;
 
     return InkWell(
       onTap: () => widget.bridge.setRgb(mode),
-      borderRadius: BorderRadius.circular(20.0),
+      borderRadius: BorderRadius.circular(8.0),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 4.5),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.2) : const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(20.0),
+          color: isSelected ? const Color(0xFF18181B) : const Color(0xFF121215),
+          borderRadius: BorderRadius.circular(8.0),
           border: Border.all(
-            color: isSelected ? color : const Color(0xFF334155),
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? color : const Color(0xFF27272A),
+            width: 1.0,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 8.0,
-              height: 8.0,
+              width: 6.0,
+              height: 6.0,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 6.0),
+            const SizedBox(width: 5.0),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                color: isSelected ? const Color(0xFFFAFAFA) : const Color(0xFFA1A1AA),
                 fontSize: 11.0,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ],

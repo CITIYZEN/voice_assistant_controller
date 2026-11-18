@@ -89,11 +89,11 @@ class SpeechService {
         final errorMsg = errorNotification.errorMsg.toLowerCase();
 
         // Checks if error is a critical hardware, permission, client, or busy failure.
+        // NOTE: We do NOT treat errorNotification.permanent as fatal because Android flags normal speech timeouts as permanent.
         final isCriticalError = errorMsg.contains('error_permission') ||
             errorMsg.contains('error_audio') ||
             errorMsg.contains('error_client') ||
-            errorMsg.contains('error_recognizer_busy') ||
-            errorNotification.permanent;
+            errorMsg.contains('error_recognizer_busy');
 
         // Disables auto-restart watchdog on critical errors to prevent infinite loops.
         if (isCriticalError) {
