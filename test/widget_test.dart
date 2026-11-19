@@ -78,6 +78,30 @@ void main() {
       expect(activePainter.color, const Color(0xFF06B6D4));
     });
 
+    testWidgets('Header displays Automation Hub with hub icon and removes Arduino Uno R3', (tester) async {
+      final bridge = HardwareBridge();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: VirtualArduinoBoard(bridge: bridge),
+          ),
+        ),
+      );
+
+      // Verify 'Arduino Uno R3' is replaced
+      expect(find.text('Arduino Uno R3'), findsNothing);
+
+      // Verify 'Automation Hub' and Icons.hub_outlined are rendered
+      expect(find.text('Automation Hub'), findsOneWidget);
+      expect(find.byIcon(Icons.hub_outlined), findsOneWidget);
+
+      // Verify RELAY BUS tile and its icon are rendered
+      expect(find.text('RELAY BUS'), findsOneWidget);
+      expect(find.byIcon(Icons.alt_route), findsOneWidget);
+      expect(find.text('0 of 3 Active'), findsOneWidget);
+    });
+
     test('CoolingFanRotorPainter paints 3-blade rotor without errors', () {
       final recorder = PictureRecorder();
       final canvas = Canvas(recorder);

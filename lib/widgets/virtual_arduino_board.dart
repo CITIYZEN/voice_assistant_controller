@@ -173,14 +173,14 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
                 child: Row(
                   children: [
                     const Icon(
-                      Icons.developer_board,
+                      Icons.hub_outlined,
                       color: Color(0xFFA1A1AA),
                       size: 18.0,
                     ),
                     const SizedBox(width: 8.0),
                     const Flexible(
                       child: Text(
-                        'Arduino Uno R3',
+                        'Automation Hub',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Color(0xFFFAFAFA),
@@ -233,134 +233,76 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
           // -----------------------------------------------------------
           // 2-COLUMN HARDWARE BENTO GRID (Relays 1, 2, 3 & Summary)
           // -----------------------------------------------------------
-          Row(
-            children: [
-              // Column 1: Relay 1 (Light D7)
-              Expanded(
-                child: _buildBentoRelayTile(
-                  title: 'Living Light',
-                  pinLabel: 'D7',
-                  isOn: widget.bridge.relay1On,
-                  accentColor: const Color(0xFFF59E0B),
-                  icon: Icons.lightbulb,
-                  onToggle: () => widget.bridge.toggleRelay(1),
-                  hint: '"turn on light"',
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Column 1: Relay 1 (Light D7)
+                Expanded(
+                  child: _buildBentoRelayTile(
+                    title: 'Living Light',
+                    pinLabel: 'D7',
+                    isOn: widget.bridge.relay1On,
+                    accentColor: const Color(0xFFF59E0B),
+                    icon: Icons.lightbulb,
+                    onToggle: () => widget.bridge.toggleRelay(1),
+                    hint: '"turn on light"',
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10.0),
-              // Column 2: Relay 2 (Fan D8)
-              Expanded(
-                child: _buildBentoRelayTile(
-                  title: 'Cooling Fan',
-                  pinLabel: 'D8',
-                  isOn: widget.bridge.relay2On,
-                  accentColor: const Color(0xFF06B6D4),
-                  icon: Icons.wind_power,
-                  customIcon: RotationTransition(
-                    turns: _fanController,
-                    child: SizedBox(
-                      width: 20.0,
-                      height: 20.0,
-                      child: CustomPaint(
-                        painter: CoolingFanRotorPainter(
-                          color: widget.bridge.relay2On ? const Color(0xFF06B6D4) : const Color(0xFF71717A),
+                const SizedBox(width: 10.0),
+                // Column 2: Relay 2 (Fan D8)
+                Expanded(
+                  child: _buildBentoRelayTile(
+                    title: 'Cooling Fan',
+                    pinLabel: 'D8',
+                    isOn: widget.bridge.relay2On,
+                    accentColor: const Color(0xFF06B6D4),
+                    icon: Icons.wind_power,
+                    customIcon: RotationTransition(
+                      turns: _fanController,
+                      child: SizedBox(
+                        width: 20.0,
+                        height: 20.0,
+                        child: CustomPaint(
+                          painter: CoolingFanRotorPainter(
+                            color: widget.bridge.relay2On ? const Color(0xFF06B6D4) : const Color(0xFF71717A),
+                          ),
                         ),
                       ),
                     ),
+                    onToggle: () => widget.bridge.toggleRelay(2),
+                    hint: '"turn on fan"',
                   ),
-                  onToggle: () => widget.bridge.toggleRelay(2),
-                  hint: '"turn on fan"',
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
           const SizedBox(height: 10.0),
 
-          Row(
-            children: [
-              // Column 1: Relay 3 (TV / Plug D9)
-              Expanded(
-                child: _buildBentoRelayTile(
-                  title: 'Smart TV',
-                  pinLabel: 'D9',
-                  isOn: widget.bridge.relay3On,
-                  accentColor: const Color(0xFFA855F7),
-                  icon: Icons.tv,
-                  onToggle: () => widget.bridge.toggleRelay(3),
-                  hint: '"turn on tv"',
-                ),
-              ),
-              const SizedBox(width: 10.0),
-              // Column 2: Master Relay Status Summary Tile
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF09090B),
-                    borderRadius: BorderRadius.circular(12.0),
-                    border: Border.all(color: const Color(0xFF27272A)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'RELAY BUS',
-                            style: TextStyle(
-                              color: Color(0xFF71717A),
-                              fontSize: 9.5,
-                              fontFamily: 'monospace',
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF18181B),
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                            child: const Text(
-                              '5V VCC',
-                              style: TextStyle(
-                                color: Color(0xFFA1A1AA),
-                                fontSize: 9.0,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12.0),
-                      Text(
-                        '$activeRelayCount of 3 Active',
-                        style: const TextStyle(
-                          color: Color(0xFFFAFAFA),
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2.0),
-                      Text(
-                        activeRelayCount == 3
-                            ? 'All channels closed'
-                            : activeRelayCount == 0
-                                ? 'All channels open'
-                                : 'Mixed state',
-                        style: const TextStyle(
-                          color: Color(0xFFA1A1AA),
-                          fontSize: 10.5,
-                        ),
-                      ),
-                    ],
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Column 1: Relay 3 (TV / Plug D9)
+                Expanded(
+                  child: _buildBentoRelayTile(
+                    title: 'Smart TV',
+                    pinLabel: 'D9',
+                    isOn: widget.bridge.relay3On,
+                    accentColor: const Color(0xFFA855F7),
+                    icon: Icons.tv,
+                    onToggle: () => widget.bridge.toggleRelay(3),
+                    hint: '"turn on tv"',
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 10.0),
+                // Column 2: Master Relay Status Summary Tile (Equalized size with other Bento tiles)
+                Expanded(
+                  child: _buildRelayBusTile(activeRelayCount),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 14.0),
@@ -586,6 +528,112 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
               isOn ? 'ON' : 'OFF',
               style: TextStyle(
                 color: isOn ? accentColor : const Color(0xFF71717A),
+                fontSize: 10.5,
+                fontFamily: 'monospace',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Builds the master Relay Bus status tile with matching Bento dimensions and visual hierarchy.
+  Widget _buildRelayBusTile(int activeRelayCount) {
+    final bool anyActive = activeRelayCount > 0;
+    const Color busAccent = Color(0xFF10B981); // Emerald bus active accent
+
+    return InkWell(
+      onTap: () {
+        // Tap to master toggle all relay channels simultaneously.
+        if (anyActive) {
+          widget.bridge.sendCommand('ALL_OFF');
+        } else {
+          widget.bridge.sendCommand('ALL_ON');
+        }
+      },
+      borderRadius: BorderRadius.circular(12.0),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: anyActive ? busAccent.withOpacity(0.08) : const Color(0xFF09090B),
+          borderRadius: BorderRadius.circular(12.0),
+          border: Border.all(
+            color: anyActive ? busAccent.withOpacity(0.5) : const Color(0xFF27272A),
+            width: 1.0,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Row: Pin label badge and 5V VCC power rail indicator.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF18181B),
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  child: const Text(
+                    'RELAY BUS',
+                    style: TextStyle(
+                      color: Color(0xFFA1A1AA),
+                      fontSize: 9.5,
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF18181B),
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  child: const Text(
+                    '5V VCC',
+                    style: TextStyle(
+                      color: Color(0xFFA1A1AA),
+                      fontSize: 9.0,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10.0),
+            // Multi-channel bus routing icon matching the 20.0 size in _buildBentoRelayTile.
+            Icon(
+              Icons.alt_route,
+              size: 20.0,
+              color: anyActive ? busAccent : const Color(0xFF71717A),
+            ),
+            const SizedBox(height: 8.0),
+            // Title: Active relay count.
+            Text(
+              '$activeRelayCount of 3 Active',
+              style: TextStyle(
+                color: anyActive ? const Color(0xFFFAFAFA) : const Color(0xFFA1A1AA),
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 2.0),
+            // State: Monospace status description matching the height & alignment of the other tiles.
+            Text(
+              activeRelayCount == 3
+                  ? 'All channels closed'
+                  : activeRelayCount == 0
+                      ? 'All channels open'
+                      : 'Mixed state',
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(
+                color: anyActive ? busAccent : const Color(0xFF71717A),
                 fontSize: 10.5,
                 fontFamily: 'monospace',
                 fontWeight: FontWeight.w600,
