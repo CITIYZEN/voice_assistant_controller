@@ -575,7 +575,7 @@ class _VoiceAssistantHomeScreenState extends State<VoiceAssistantHomeScreen>
     );
   }
 
-  // Builds the interactive voice assistant hero section with pulsing orb and audio waveform visualizer.
+  // Builds the interactive voice assistant hero section with fixed-height stage and audio waveform visualizer.
   Widget _buildVoiceHeroSection(bool isListening, bool isArabic) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -587,92 +587,90 @@ class _VoiceAssistantHomeScreenState extends State<VoiceAssistantHomeScreen>
       ),
       child: Column(
         children: [
-          // Centered Microphone Orb with breathing ambient ring.
-          Center(
-            child: GestureDetector(
-              onTap: () => _speechService.toggleListening(),
-              child: AnimatedBuilder(
-                animation: _pulseController,
-                builder: (context, child) {
-                  // Calculates subtle aura expansion.
-                  final auraScale = isListening ? 1.0 + (_pulseController.value * 0.12) : 1.0;
-                  final auraOpacity = isListening ? 0.35 - (_pulseController.value * 0.18) : 0.0;
-
-                  return Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Ambient breathing aura ring.
-                      if (isListening)
-                        Transform.scale(
-                          scale: auraScale * 1.3,
+          // Dedicated fixed-height hero stage (150.0) with zero layout shift.
+          SizedBox(
+            height: 150.0,
+            child: ClipRect(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                // Stationary 72x72 Circular Microphone Button with concentric sound wave ripple rings behind it.
+                Center(
+                  child: GestureDetector(
+                    onTap: () => _speechService.toggleListening(),
+                    child: AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        return CustomPaint(
+                          painter: SoundWaveAuraPainter(
+                            pulse: _pulseController.value,
+                            soundLevel: _soundLevel,
+                            isListening: isListening,
+                          ),
                           child: Container(
-                            width: 76.0,
-                            height: 76.0,
+                            width: 72.0,
+                            height: 72.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: const Color(0xFF10B981).withOpacity(auraOpacity),
+                              color: const Color(0xFF18181B),
+                              border: Border.all(
+                                color: isListening ? const Color(0xFF10B981) : const Color(0xFF27272A),
+                                width: 1.5,
+                              ),
+                              boxShadow: isListening
+                                  ? [
+                                      BoxShadow(
+                                        color: const Color(0xFF10B981).withOpacity(0.25),
+                                        blurRadius: 18.0,
+                                        spreadRadius: 1.5,
+                                      ),
+                                    ]
+                                  : [],
+                            ),
+                            child: Center(
+                              child: Icon(
+                                isListening ? Icons.mic : Icons.mic_none,
+                                color: isListening ? const Color(0xFF10B981) : const Color(0xFFA1A1AA),
+                                size: 30.0,
+                              ),
                             ),
                           ),
-                        ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
 
-                      // Outer obsidian glass bezel.
-                      Container(
-                        width: 76.0,
-                        height: 76.0,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF18181B),
-                          border: Border.all(
-                            color: isListening ? const Color(0xFF10B981) : const Color(0xFF27272A),
-                            width: 1.5,
-                          ),
-                          boxShadow: isListening
-                              ? [
-                                  BoxShadow(
-                                    color: const Color(0xFF10B981).withOpacity(0.2),
-                                    blurRadius: 18.0,
-                                    spreadRadius: 2.0,
-                                  ),
-                                ]
-                              : [],
-                        ),
-                        child: Center(
-                          child: Icon(
-                            isListening ? Icons.mic : Icons.mic_none,
-                            color: isListening ? const Color(0xFF10B981) : const Color(0xFFA1A1AA),
-                            size: 32.0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                const SizedBox(height: 10.0),
+
+                // Multi-bar Audio Waveform Visualizer in fixed height container.
+                SizedBox(
+                  height: 16.0,
+                  child: _buildAudioWaveform(isListening),
+                ),
+
+                const SizedBox(height: 8.0),
+
+                // Listening status guidance text.
+                Text(
+                  isListening ? 'Listening in real-time...' : 'Tap to start voice control',
+                  style: TextStyle(
+                    color: isListening ? const Color(0xFF10B981) : const Color(0xFF71717A),
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
+        ),
 
           const SizedBox(height: 12.0),
 
-          // Multi-bar Audio Waveform Visualizer.
-          _buildAudioWaveform(isListening),
-
-          const SizedBox(height: 8.0),
-
-          // Listening status guidance text.
-          Text(
-            isListening ? 'Listening in real-time...' : 'Tap to start voice control',
-            style: TextStyle(
-              color: isListening ? const Color(0xFF10B981) : const Color(0xFFA1A1AA),
-              fontSize: 12.0,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-
-          const SizedBox(height: 12.0),
-
-          // Streaming Transcript Display Card.
+          // Streaming Transcript Display Card with clean minHeight: 68.0 to eliminate layout jump.
           Container(
             width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 68.0),
             padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
               color: const Color(0xFF09090B),
@@ -776,19 +774,20 @@ class _VoiceAssistantHomeScreenState extends State<VoiceAssistantHomeScreen>
       builder: (context, child) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: List.generate(7, (index) {
             // Calculates varied bar heights based on sine wave and current mic sound level.
             final wavePhase = (_waveformController.value * 2 * math.pi) + (index * 0.7);
             final waveOffset = (math.sin(wavePhase) + 1.0) / 2.0; // 0.0 to 1.0
 
             final height = isListening
-                ? 6.0 + (waveOffset * 14.0) + (_soundLevel * 1.5)
-                : 4.0;
+                ? 3.5 + (waveOffset * 8.0) + ((_soundLevel / 10.0) * 4.5)
+                : 3.5;
 
             return Container(
               width: 3.5,
-              height: height.clamp(4.0, 26.0),
-              margin: const EdgeInsets.symmetric(horizontal: 2.5),
+              height: height.clamp(3.5, 16.0),
+              margin: const EdgeInsets.symmetric(horizontal: 2.0),
               decoration: BoxDecoration(
                 color: isListening ? const Color(0xFF10B981) : const Color(0xFF27272A),
                 borderRadius: BorderRadius.circular(2.0),
@@ -851,4 +850,86 @@ class _VoiceAssistantHomeScreenState extends State<VoiceAssistantHomeScreen>
       ),
     );
   }
+}
+
+// CustomPainter that renders 2-3 smooth concentric animated ripple rings behind the stationary mic button.
+class SoundWaveAuraPainter extends CustomPainter {
+  // Current animation progress of the breathing pulse controller (0.0 to 1.0).
+  final double pulse;
+  // Live input decibel level from speech service (0.0 to 10.0).
+  final double soundLevel;
+  // Whether speech recognition is actively streaming.
+  final bool isListening;
+
+  const SoundWaveAuraPainter({
+    required this.pulse,
+    required this.soundLevel,
+    required this.isListening,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (!isListening) return;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    const baseRadius = 36.0; // Half of 72x72 core button
+    final normalizedSound = (soundLevel / 10.0).clamp(0.0, 1.0);
+
+    // Soft ambient aura glow immediately behind button core
+    final auraPaint = Paint()
+      ..color = const Color(0xFF10B981).withOpacity((0.14 + (normalizedSound * 0.10) - (pulse * 0.04)).clamp(0.04, 0.24))
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, baseRadius + 4.0 + (pulse * 3.0), auraPaint);
+
+    // 3 Concentric animated sound wave ripple rings expanding and fading smoothly based on pulse and sound level.
+    final ringConfigs = [
+      // Ring 1 (Inner ring)
+      _RippleRing(
+        radius: baseRadius + 4.0 + (pulse * 4.0) + (normalizedSound * 3.0),
+        alpha: ((0.36 - (pulse * 0.14)) * (0.65 + normalizedSound * 0.35)).clamp(0.06, 0.42),
+        strokeWidth: 1.5,
+      ),
+      // Ring 2 (Middle ring)
+      _RippleRing(
+        radius: baseRadius + 9.0 + (pulse * 6.0) + (normalizedSound * 4.0),
+        alpha: ((0.22 - (pulse * 0.10)) * (0.65 + normalizedSound * 0.35)).clamp(0.04, 0.28),
+        strokeWidth: 1.2,
+      ),
+      // Ring 3 (Outer ring)
+      _RippleRing(
+        radius: baseRadius + 14.0 + (pulse * 8.0) + (normalizedSound * 5.0),
+        alpha: ((0.13 - (pulse * 0.06)) * (0.65 + normalizedSound * 0.35)).clamp(0.02, 0.16),
+        strokeWidth: 1.0,
+      ),
+    ];
+
+    // Renders clean concentric ripple stroke waves behind the button
+    for (final ring in ringConfigs) {
+      final strokePaint = Paint()
+        ..color = const Color(0xFF10B981).withOpacity(ring.alpha)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = ring.strokeWidth;
+      canvas.drawCircle(center, ring.radius, strokePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant SoundWaveAuraPainter oldDelegate) {
+    return oldDelegate.pulse != pulse ||
+        oldDelegate.soundLevel != soundLevel ||
+        oldDelegate.isListening != isListening;
+  }
+}
+
+// Internal data model for ripple ring parameters.
+class _RippleRing {
+  final double radius;
+  final double alpha;
+  final double strokeWidth;
+
+  const _RippleRing({
+    required this.radius,
+    required this.alpha,
+    required this.strokeWidth,
+  });
 }

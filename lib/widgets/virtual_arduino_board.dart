@@ -1,5 +1,7 @@
 // Imports core Flutter material design widgets and theming components.
 import 'package:flutter/material.dart';
+// Imports math utilities for rotor blade geometric calculations.
+import 'dart:math' as math;
 // Imports HardwareBridge models and state definitions.
 import '../services/hardware_bridge.dart';
 
@@ -253,13 +255,17 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
                   pinLabel: 'D8',
                   isOn: widget.bridge.relay2On,
                   accentColor: const Color(0xFF06B6D4),
-                  icon: Icons.toys,
+                  icon: Icons.wind_power,
                   customIcon: RotationTransition(
                     turns: _fanController,
-                    child: Icon(
-                      Icons.toys,
-                      size: 20.0,
-                      color: widget.bridge.relay2On ? const Color(0xFF06B6D4) : const Color(0xFF71717A),
+                    child: SizedBox(
+                      width: 20.0,
+                      height: 20.0,
+                      child: CustomPaint(
+                        painter: CoolingFanRotorPainter(
+                          color: widget.bridge.relay2On ? const Color(0xFF06B6D4) : const Color(0xFF71717A),
+                        ),
+                      ),
                     ),
                   ),
                   onToggle: () => widget.bridge.toggleRelay(2),
@@ -660,5 +666,76 @@ class _VirtualArduinoBoardState extends State<VirtualArduinoBoard> with TickerPr
         ),
       ),
     );
+  }
+}
+
+// CustomPainter rendering a realistic, aerodynamic 3-blade cooling fan rotor.
+class CoolingFanRotorPainter extends CustomPainter {
+  // Color tint of the fan blades and hub.
+  final Color color;
+
+  const CoolingFanRotorPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    // Draws central mounting hub
+    canvas.drawCircle(center, 3.2, paint);
+
+    // Draws 3 aerodynamic curved fan rotor blades spaced at 120-degree intervals.
+    for (int i = 0; i < 3; i++) {
+      final baseAngle = i * (2 * math.pi / 3) - (math.pi / 2);
+      final path = Path();
+
+      const innerRadius = 2.8;
+      final outerRadius = size.width * 0.48; // ~9.6px for 20x20
+
+      final p0 = center + Offset(innerRadius * math.cos(baseAngle - 0.35), innerRadius * math.sin(baseAngle - 0.35));
+      final pTipLeading = center + Offset(outerRadius * math.cos(baseAngle + 0.15), outerRadius * math.sin(baseAngle + 0.15));
+      final pTipTrailing = center + Offset(outerRadius * 0.88 * math.cos(baseAngle + 0.65), outerRadius * 0.88 * math.sin(baseAngle + 0.65));
+      final p3 = center + Offset(innerRadius * math.cos(baseAngle + 0.45), innerRadius * math.sin(baseAngle + 0.45));
+
+      path.moveTo(p0.dx, p0.dy);
+      // Aerodynamic swept leading edge
+      path.quadraticBezierTo(
+        center.dx + (outerRadius * 0.6 * math.cos(baseAngle)),
+        center.dy + (outerRadius * 0.6 * math.sin(baseAngle)),
+        pTipLeading.dx,
+        pTipLeading.dy,
+      );
+      // Curved blade tip perimeter
+      path.quadraticBezierTo(
+        center.dx + (outerRadius * math.cos(baseAngle + 0.42)),
+        center.dy + (outerRadius * math.sin(baseAngle + 0.42)),
+        pTipTrailing.dx,
+        pTipTrailing.dy,
+      );
+      // Trailing edge returning to mounting hub
+      path.quadraticBezierTo(
+        center.dx + (outerRadius * 0.5 * math.cos(baseAngle + 0.6)),
+        center.dy + (outerRadius * 0.5 * math.sin(baseAngle + 0.6)),
+        p3.dx,
+        p3.dy,
+      );
+      path.close();
+
+      canvas.drawPath(path, paint);
+    }
+
+    // Mechanical central axle core
+    final axlePaint = Paint()
+      ..color = const Color(0xFF121215)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, 1.2, axlePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CoolingFanRotorPainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }
